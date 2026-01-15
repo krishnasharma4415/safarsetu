@@ -1,0 +1,17 @@
+export const destinations = [
+    { id: 1, name: 'Paris', country: 'France', lat: 48.8566, lon: 2.3522 },
+    { id: 2, name: 'Tokyo', country: 'Japan', lat: 35.6762, lon: 139.6503 },
+    { id: 3, name: 'New York', country: 'USA', lat: 40.7128, lon: -74.0060 },
+    { id: 4, name: 'London', country: 'UK', lat: 51.5074, lon: -0.1278 },
+    { id: 5, name: 'Dubai', country: 'UAE', lat: 25.2048, lon: 55.2708 },
+    { id: 6, name: 'Barcelona', country: 'Spain', lat: 41.3851, lon: 2.1734 },
+    { id: 7, name: 'Rome', country: 'Italy', lat: 41.9028, lon: 12.4964 },
+    { id: 8, name: 'Bangkok', country: 'Thailand', lat: 13.7563, lon: 100.5018 },
+    { id: 9, name: 'Istanbul', country: 'Turkey', lat: 41.0082, lon: 28.9784 },
+    { id: 10, name: 'Amsterdam', country: 'Netherlands', lat: 52.3676, lon: 4.9041 },
+    { id: 11, name: 'Singapore', country: 'Singapore', lat: 1.3521, lon: 103.8198 },
+    { id: 12, name: 'Prague', country: 'Czech Republic', lat: 50.0755, lon: 14.4378 },
+    { id: 13, name: 'Venice', country: 'Italy', lat: 45.4408, lon: 12.3155 },
+    { id: 14, name: 'Kyoto', country: 'Japan', lat: 35.0116, lon: 135.7681 },
+    { id: 15, name: 'Bali', country: 'Indonesia', lat: -8.3405, lon: 115.0920 },
+];
