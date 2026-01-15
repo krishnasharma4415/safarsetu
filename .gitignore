@@ -16,6 +16,8 @@ dist-ssr
 .env.local
 .env.production
 
+.vercel
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
