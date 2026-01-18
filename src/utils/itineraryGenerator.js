@@ -117,3 +117,10 @@ export const updateDayNotes = (itinerary, dayIndex, notes) => {
     newItinerary.days[dayIndex].notes = notes;
     return newItinerary;
 };
+
+export const reorderActivities = (itinerary, dayIndex, newActivities) => {
+    const newItinerary = { ...itinerary };
+    newItinerary.days[dayIndex].activities = newActivities;
+    return newItinerary;
+};
+

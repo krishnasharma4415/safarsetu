@@ -1,0 +1,159 @@
+@media print {
+    @page {
+        margin: 1.5cm;
+        size: A4;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    nav,
+    footer,
+    .no-print,
+    button:not(.print-keep),
+    .toast,
+    .modal-overlay {
+        display: none !important;
+    }
+
+    .card {
+        page-break-inside: avoid;
+        border: 1px solid #e5e7eb;
+        box-shadow: none;
+        margin-bottom: 1rem;
+    }
+
+    .glass-card {
+        background: white !important;
+        border: 1px solid #e5e7eb;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        page-break-after: avoid;
+        color: black !important;
+    }
+
+    a {
+        text-decoration: underline;
+        color: #0ea5e9 !important;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        color: #666;
+    }
+
+    .text-gradient {
+        background: none !important;
+        -webkit-background-clip: unset !important;
+        background-clip: unset !important;
+        color: #0ea5e9 !important;
+    }
+
+    .badge {
+        border: 1px solid currentColor;
+        background: white !important;
+    }
+
+    img {
+        max-width: 100%;
+        page-break-inside: avoid;
+    }
+
+    table {
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    .activity-card {
+        page-break-inside: avoid;
+        margin-bottom: 0.5rem;
+    }
+
+    .day-card {
+        page-break-before: auto;
+        page-break-after: auto;
+        page-break-inside: avoid;
+    }
+
+    .map-container {
+        height: 400px !important;
+        page-break-inside: avoid;
+    }
+
+    .weather-card {
+        display: inline-block;
+        width: 48%;
+        margin-right: 2%;
+        page-break-inside: avoid;
+    }
+
+    .budget-summary {
+        page-break-inside: avoid;
+    }
+
+    .print-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #0ea5e9;
+    }
+
+    .print-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 0.8em;
+        color: #666;
+        padding: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .page-number:after {
+        content: counter(page);
+    }
+
+    .grip-handle,
+    .drag-handle {
+        display: none !important;
+    }
+
+    .hover\:scale-105:hover,
+    .hover\:shadow-xl:hover,
+    .transition-all,
+    .animate-slide-up,
+    .animate-fade-in {
+        transform: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+@media print and (color) {
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

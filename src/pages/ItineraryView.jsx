@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, ArrowLeft, MapPin, Calendar, Users, DollarSign, Map } from 'lucide-react';
+import { Save, ArrowLeft, MapPin, Calendar, Users, DollarSign, Map, Download } from 'lucide-react';
 import useStore from '../store/useStore';
 import DayCard from '../components/itinerary/DayCard';
 import ItineraryMap from '../components/itinerary/ItineraryMap';
+import FullItineraryMap from '../components/itinerary/FullItineraryMap';
 import WeatherCard from '../components/itinerary/WeatherCard';
+import BudgetSummary from '../components/itinerary/BudgetSummary';
 import Button from '../components/ui/Button';
 import Toast from '../components/ui/Toast';
 import Modal from '../components/ui/Modal';
@@ -12,8 +14,10 @@ import {
     updateDayActivity,
     removeActivity,
     updateDayNotes,
+    reorderActivities,
 } from '../utils/itineraryGenerator';
 import { getWeatherForecast, findBestWeatherDay } from '../utils/weather';
+import { exportToPDF } from '../utils/pdfExport';
 
 const ItineraryView = () => {
     const navigate = useNavigate();
@@ -24,6 +28,7 @@ const ItineraryView = () => {
     const [weatherData, setWeatherData] = useState(null);
     const [bestWeatherDay, setBestWeatherDay] = useState(null);
     const [showMap, setShowMap] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     if (!currentItinerary) {
         navigate('/plan');
@@ -68,6 +73,11 @@ const ItineraryView = () => {
         setToast({ message: 'Notes updated', type: 'success' });
     };
 
+    const handleReorderActivities = (dayIndex, newActivities) => {
+        const updated = reorderActivities(currentItinerary, dayIndex, newActivities);
+        updateItinerary(updated);
+    };
+
     const handleSave = () => {
         if (!itineraryName.trim()) {
             setToast({ message: 'Please enter a name for your itinerary', type: 'error' });
@@ -83,6 +93,19 @@ const ItineraryView = () => {
         setToast({ message: 'Itinerary saved successfully!', type: 'success' });
         setIsSaveModalOpen(false);
         setItineraryName('');
+    };
+
+    const handleExportPDF = async () => {
+        setIsExporting(true);
+        try {
+            await exportToPDF(currentItinerary, tripDetails);
+            setToast({ message: 'PDF exported successfully!', type: 'success' });
+        } catch (error) {
+            console.error('PDF export failed:', error);
+            setToast({ message: 'Failed to export PDF', type: 'error' });
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     const formatDateRange = () => {
@@ -152,10 +175,21 @@ const ItineraryView = () => {
                                 </div>
                             </div>
 
-                            <Button onClick={() => setIsSaveModalOpen(true)} className="whitespace-nowrap">
-                                <Save className="w-5 h-5 mr-2 inline" />
-                                Save Itinerary
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button
+                                    onClick={handleExportPDF}
+                                    variant="secondary"
+                                    disabled={isExporting}
+                                    className="whitespace-nowrap"
+                                >
+                                    <Download className="w-5 h-5 mr-2 inline" />
+                                    {isExporting ? 'Exporting...' : 'Export PDF'}
+                                </Button>
+                                <Button onClick={() => setIsSaveModalOpen(true)} className="whitespace-nowrap">
+                                    <Save className="w-5 h-5 mr-2 inline" />
+                                    Save Itinerary
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -182,23 +216,11 @@ const ItineraryView = () => {
                 )}
 
                 <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                            <Map className="w-6 h-6 text-primary-500" />
-                            Itinerary Overview
-                        </h2>
-                        <button
-                            onClick={() => setShowMap(!showMap)}
-                            className="px-4 py-2 bg-primary-100 text-primary-700 font-semibold rounded-xl hover:bg-primary-200 transition-colors"
-                        >
-                            {showMap ? 'Hide Map' : 'Show Map'}
-                        </button>
-                    </div>
-                    {showMap && (
-                        <div className="mb-6">
-                            <ItineraryMap destination={tripDetails.destination} />
-                        </div>
-                    )}
+                    <BudgetSummary itinerary={currentItinerary} tripDetails={tripDetails} />
+                </div>
+
+                <div className="mb-8">
+                    <FullItineraryMap itinerary={currentItinerary} destination={tripDetails.destination} />
                 </div>
 
                 <div className="space-y-6">
@@ -210,6 +232,8 @@ const ItineraryView = () => {
                             onUpdateActivity={handleUpdateActivity}
                             onRemoveActivity={handleRemoveActivity}
                             onUpdateNotes={handleUpdateNotes}
+                            onReorderActivities={handleReorderActivities}
+                            tripDetails={tripDetails}
                             readOnly={false}
                         />
                     ))}

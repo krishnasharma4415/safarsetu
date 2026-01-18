@@ -18,6 +18,13 @@ dist-ssr
 
 .vercel
 
+# PWA
+dev-dist
+sw.js
+sw.js.map
+workbox-*.js
+workbox-*.js.map
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

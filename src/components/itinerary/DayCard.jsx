@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { Calendar, Plus, Edit3 } from 'lucide-react';
-import ActivityCard from './ActivityCard';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import DraggableActivityCard from './DraggableActivityCard';
 import Modal from '../ui/Modal';
+import Button from '../ui/Button';
 
-const DayCard = ({ day, dayIndex, onUpdateActivity, onRemoveActivity, onAddActivity, onUpdateNotes, readOnly }) => {
+const DayCard = ({ day, dayIndex, onUpdateActivity, onRemoveActivity, onUpdateNotes, onReorderActivities, readOnly, tripDetails }) => {
     const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
     const [notes, setNotes] = useState(day.notes || '');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingActivity, setEditingActivity] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        })
+    );
 
     const handleSaveNotes = () => {
         onUpdateNotes(dayIndex, notes);
@@ -26,6 +37,18 @@ const DayCard = ({ day, dayIndex, onUpdateActivity, onRemoveActivity, onAddActiv
         });
         setIsEditModalOpen(false);
         setEditingActivity(null);
+    };
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            const oldIndex = day.activities.findIndex((a) => a.id === active.id);
+            const newIndex = day.activities.findIndex((a) => a.id === over.id);
+
+            const newActivities = arrayMove(day.activities, oldIndex, newIndex);
+            onReorderActivities(dayIndex, newActivities);
+        }
     };
 
     const formatDate = (dateString) => {
@@ -66,25 +89,34 @@ const DayCard = ({ day, dayIndex, onUpdateActivity, onRemoveActivity, onAddActiv
                     </div>
                 )}
 
-                <div className="space-y-4">
-                    {day.activities.map((activity) => (
-                        <ActivityCard
-                            key={activity.id}
-                            activity={activity}
-                            onRemove={() => onRemoveActivity(dayIndex, activity.id)}
-                            onEdit={handleEditActivity}
-                            readOnly={readOnly}
-                        />
-                    ))}
-                </div>
-
-                {!readOnly && day.activities.length < 4 && (
-                    <button
-                        className="mt-4 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-all flex items-center justify-center gap-2 font-semibold"
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext
+                        items={day.activities.map((a) => a.id)}
+                        strategy={verticalListSortingStrategy}
                     >
-                        <Plus className="w-5 h-5" />
-                        Add Custom Activity
-                    </button>
+                        <div className="space-y-4">
+                            {day.activities.map((activity) => (
+                                <DraggableActivityCard
+                                    key={activity.id}
+                                    activity={activity}
+                                    onRemove={() => onRemoveActivity(dayIndex, activity.id)}
+                                    onEdit={handleEditActivity}
+                                    budget={tripDetails?.budget || 'medium'}
+                                    travelers={tripDetails?.travelers || 1}
+                                />
+                            ))}
+                        </div>
+                    </SortableContext>
+                </DndContext>
+
+                {!readOnly && day.activities.length === 0 && (
+                    <div className="text-center py-8 text-gray-400">
+                        <p>No activities for this day yet</p>
+                    </div>
                 )}
             </div>
 
@@ -100,15 +132,15 @@ const DayCard = ({ day, dayIndex, onUpdateActivity, onRemoveActivity, onAddActiv
                     className="input-field min-h-[150px] resize-none"
                 />
                 <div className="flex justify-end gap-3 mt-4">
-                    <button
+                    <Button
+                        variant="secondary"
                         onClick={() => setIsNotesModalOpen(false)}
-                        className="btn-secondary"
                     >
                         Cancel
-                    </button>
-                    <button onClick={handleSaveNotes} className="btn-primary">
+                    </Button>
+                    <Button onClick={handleSaveNotes}>
                         Save Notes
-                    </button>
+                    </Button>
                 </div>
             </Modal>
 
@@ -124,7 +156,8 @@ const DayCard = ({ day, dayIndex, onUpdateActivity, onRemoveActivity, onAddActiv
                     <form onSubmit={handleSaveActivity}>
                         <div className="mb-4">
                             <h3 className="font-bold text-lg mb-2">{editingActivity.name}</h3>
-                            <p className="text-sm text-gray-600">{editingActivity.duration}</p>
+                            <p className="text-sm text-gray-600">{editingActivity.description}</p>
+                            <p className="text-sm text-gray-500 mt-1">{editingActivity.duration}</p>
                         </div>
 
                         <label className="label">Activity Notes</label>
@@ -138,19 +171,19 @@ const DayCard = ({ day, dayIndex, onUpdateActivity, onRemoveActivity, onAddActiv
                         />
 
                         <div className="flex justify-end gap-3 mt-4">
-                            <button
+                            <Button
                                 type="button"
+                                variant="secondary"
                                 onClick={() => {
                                     setIsEditModalOpen(false);
                                     setEditingActivity(null);
                                 }}
-                                className="btn-secondary"
                             >
                                 Cancel
-                            </button>
-                            <button type="submit" className="btn-primary">
+                            </Button>
+                            <Button type="submit">
                                 Save Changes
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 )}
